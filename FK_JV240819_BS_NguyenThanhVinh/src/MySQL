@@ -1,0 +1,140 @@
+create database QuanLyNhanSu;
+use QuanLyNhanSu;
+create table Departments(
+    department_id int primary key auto_increment,
+    department_name varchar(50) not null unique,
+    department_status bit
+);
+
+create table Employee(
+    employee_id int primary key auto_increment,
+    employee_name varchar(50) not null unique ,
+    position varchar(50) not null ,
+    salary double not null check ( salary > 0 ),
+    hire_date date not null ,
+    department_id int not null ,
+    FOREIGN KEY (department_id) references Departments(department_id)
+);
+
+-- hiển thị danh sách phòng ban
+delimiter &&
+create procedure find_all_departments()
+begin
+    select * from Departments;
+end &&
+delimiter &&;
+
+-- thêm mới phòng ban
+delimiter &&
+create procedure create_departments(department_name_in varchar(50), department_status_in bit)
+begin
+    insert into Departments(department_name,department_status)
+    values (department_name_in,department_status_in);
+end &&
+delimiter &&;
+
+-- cập nhật phòng ban
+delimiter &&
+create procedure update_departments(department_id_in int,department_name_in varchar(50), department_status_in bit)
+begin
+    update Departments
+        set department_name = department_name_in,
+            department_status = department_status_in
+    where department_id = department_id_in;
+end &&
+delimiter &&;
+
+-- xóa phòng ban
+delimiter &&
+create procedure delete_departments(department_id_in int)
+begin
+    delete from Departments where department_id = department_id_in;
+end &&
+delimiter &&;
+
+-- hiện thị phòng ban có nhiều nhân viên nhất
+delimiter &&
+create procedure sort_departments()
+begin
+    select d.department_id , d.department_name, count(e.employee_id) as employee_count
+    from Departments d
+    left join Employee e on d.department_id = e.department_id
+    order by employee_count desc
+    limit 1;
+end &&
+delimiter &&;
+
+-- hiển th danh sách nhân viên
+delimiter &&
+create procedure find_all_employee()
+begin
+    select * from Employee;
+end &&
+delimiter &&;
+
+-- Thêm mới nhân viên
+delimiter &&
+create procedure create_employeee(
+    employee_name_in int,
+    position_in varchar(50),
+    salary_in double,
+    hire_date_in date,
+    department_id_in int
+)
+begin
+    insert into Employee (employee_name, position, salary, hire_date,department_id)
+    values (employee_name_in,position_in,salary_in,hire_date_in,department_id_in);
+end &&
+delimiter &&;
+
+-- cập nhật nhân viên
+delimiter &&
+create procedure update_employee(
+    employee_id_in int,
+    employee_name_in int,
+    position_in varchar(50),
+    salary_in double,
+    hire_date_in date
+)
+begin
+    update Employee
+    set employee_name = employee_name_in,
+        position = position_in,
+        salary = salary_in,
+        hire_date = hire_date_in
+    where employee_id = employee_id_in;
+end &&
+delimiter &&;
+
+-- xóa nhân viên
+delimiter &&
+create procedure delete_employee(employee_id_in int)
+begin
+    delete from Employee where Employee.employee_id = employee_id_in;
+end &&
+delimiter &&;
+
+-- hiển thị nhân viên theo phòng ban
+delimiter &&
+create procedure get_employee_by_employee(department_id_in int)
+begin
+    select * from Employee where department_id_in = department_id;
+end &&
+delimiter &&;
+
+-- tìm kiếm nhân viên theo tên
+delimiter &&
+create procedure search_employee_by_name(employee_name_in varchar(50))
+begin
+    select * from Employee
+    where employee_name like concat('%',employee_name_in,'%');
+end &&
+delimiter &&;
+
+-- hiển thị top 5 lương nhân viên cao nhất
+delimiter &&
+create procedure top_5_employyee_salary()
+begin
+    select * from Employee order by salary desc limit 5;
+end &&
+delimiter &&;
